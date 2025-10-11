@@ -1,0 +1,42 @@
+package com.example.week5.repository;
+
+import com.example.week5.entity.Posts;
+import com.example.week5.entity.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface PostsRepository extends JpaRepository<Posts, Long> {
+
+    // 1. 게시글 조회
+    // 1-1. 게시글 전체 조회
+    @Query(value = "SELECT p FROM Posts p JOIN FETCH p.users")
+    Page<Posts> findAllWithUsers(Pageable pageable);
+
+    // 1-2. 게시글 상세 조회
+    @Query(value = "SELECT p FROM Posts p JOIN FETCH p.users WHERE p.id = :id")
+    Optional<Posts> findByIdWithUsers(Long id);
+
+    // 1-3. 사용자별 게시글 조회
+    Page<Posts> findAllByUsers(Pageable pageable, Users users);
+
+    // 2. 게시글 검색
+    // 2-1. 게시글 제목 검색
+    @Query(value = "SELECT p FROM Posts p JOIN FETCH p.users WHERE p.title LIKE %:title%")
+    Page<Posts> findAllTitleContaining(String title, Pageable pageable);
+
+    // 2-2. 게시글 내용 검색
+    @Query(value = "SELECT p FROM Posts p JOIN FETCH p.users WHERE p.content LIKE %:content%")
+    Page<Posts> findAllContentContaining(String content, Pageable pageable);
+
+    // 2-3. 게시글 작성자 검색
+    // 닉네임으로 하는게 맞을까...!!
+    @Query(value = "SELECT p FROM Posts p JOIN FETCH p.users WHERE p.users.nickname LIKE %:nickname%")
+    Page<Posts> findAllNicknameContaining(String nickname, Pageable pageable);
+
+}

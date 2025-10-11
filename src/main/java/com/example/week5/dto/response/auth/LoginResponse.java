@@ -1,0 +1,31 @@
+package com.example.week5.dto.response.auth;
+
+import com.example.week5.entity.Users;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class LoginResponse {
+
+    private String email;
+    private String token;
+
+    @Builder
+    public LoginResponse(String email, String token) {
+        this.email = email;
+        this.token = token;
+    }
+
+    // Entity -> DTO
+    public static LoginResponse fromEntity(Users users, String token) {
+        return LoginResponse.builder()
+                .email(users.getEmail())
+                .token(token)
+                .build();
+    }
+
+}
