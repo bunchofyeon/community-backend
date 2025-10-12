@@ -1,6 +1,7 @@
 package com.example.week5.controller;
 
 import com.example.week5.common.response.ApiResponse;
+import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
@@ -22,6 +23,17 @@ public class PostsController {
 
     private final PostsService postsService;
 
+    // 게시글 목록 조회, 페이징
+    // ...
+
+    // 게시글 상세 조회
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostDetailsResponse>> detail(@PathVariable("postId") Long postId) {
+        PostDetailsResponse findPostDTO = postsService.detail(postId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("게시글 조회", findPostDTO));
+    }
+
     // 게시글 작성
     @PostMapping("/write")
     public ResponseEntity<ApiResponse<PostWriteResponse>> write(
@@ -34,13 +46,14 @@ public class PostsController {
                 .body(ApiResponse.success("게시글 작성", savePostDTO));
     }
 
-    // 게시글 조회
-    @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostDetailsResponse>> detail(@PathVariable("postId") Long postId) {
-        PostDetailsResponse findPostDTO = postsService.detail(postId);
-        return ResponseEntity.ok(
-                ApiResponse.success("게시글 조회", findPostDTO)
-        );
+    // 게시글 수정 (게시글 상세 조회 -> 수정)
+    @PatchMapping("/{postId}/update")
+    public ResponseEntity<ApiResponse<PostDetailsResponse>> update(
+            @PathVariable Long postId,
+            @RequestBody PostUpdateRequest postUpdateRequest) {
+        PostDetailsResponse updatePostDTO = postsService.update(postId, postUpdateRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("게시글 수정", updatePostDTO));
     }
 
     // (게시글 상세보기 후에) 삭제
@@ -50,7 +63,7 @@ public class PostsController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // soft delete -> ...
+    // soft delete -> ㅠㅠ...
     /*
     @PatchMapping("/{postId}/delete")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long postId) {

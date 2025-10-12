@@ -1,6 +1,7 @@
 package com.example.week5.service;
 
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
+import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
@@ -19,6 +20,13 @@ public class PostsService {
 
     private final UsersRepository usersRepository;
     private final PostsRepository postsRepository;
+
+    // 게시글 목록 조회
+    // ...
+
+    // 게시글 검색
+    // ...
+
 
     // 게시글 등록
     public PostWriteResponse write(PostWriteRequest postWriteRequest, Users users) {
@@ -43,12 +51,23 @@ public class PostsService {
     // 게시글 상세 조회
     public PostDetailsResponse detail(Long postId) {
         Posts findPost = postsRepository.findByIdWithUsers(postId).orElseThrow(
-                () -> new ResourceNotFoundException("Post"));
+                () -> new ResourceNotFoundException("Posts"));
 
         // 조회수 증가
         // findBoard.upViewCount();
 
         return PostDetailsResponse.fromEntity(findPost);
+    }
+
+    // 마이페이지 - 사용자별 게시글 조회
+    // ...
+
+    // 게시글 수정
+    public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest) {
+        Posts updatePost = postsRepository.findByIdWithUsers(postId).orElseThrow( // 일단... (게시글 + 작성자)만 조회
+                () -> new ResourceNotFoundException("Posts"));
+        updatePost.update(postUpdateRequest.getTitle(), postUpdateRequest.getContent());
+        return PostDetailsResponse.fromEntity(updatePost);
     }
 
     // 게시글 삭제
