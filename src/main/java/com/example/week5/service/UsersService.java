@@ -145,10 +145,10 @@ public class UsersService {
 
     // 3. 마이페이지
     // 3-1. 사용자 정보 조회 (비밀번호 검증 후 정보 리턴)
+    // checkpwd 동작을 위해서 UserService 클래스 변경 -> (Users)로 캐스팅이 안된다고..
     public UserResponse check(Users users, String password) {
-        Users checkMember = (Users) userDetailsService.loadUserByUsername(users.getEmail());
-        checkEncodePassword(password, checkMember.getPassword());
-        return UserResponse.fromEntity(checkMember);
+        checkEncodePassword(password, users.getPassword());
+        return UserResponse.fromEntity(users);
     }
 
     // 3-2. 사용자 정보 수정

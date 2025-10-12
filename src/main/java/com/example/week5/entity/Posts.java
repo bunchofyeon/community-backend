@@ -11,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -55,13 +57,17 @@ public class Posts {
     @JoinColumn(name = "user_id")
     private Users users;
 
+    // 게시글 삭제하면 댓글도 삭제 (orphanRemoval = true)
+    @OneToMany(mappedBy = "posts", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comments> comments = new ArrayList<>();
+
     @Builder
     public Posts(String title, String content, Long likeCount, Long commentCount, Long viewCount, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Users users) {
         this.title = title;
         this.content = content;
-        this.likeCount = likeCount;
-        this.commentCount = commentCount;
-        this.viewCount = viewCount;
+        this.likeCount = 0L;
+        this.commentCount = 0L;
+        this.viewCount = 0L;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -75,11 +81,17 @@ public class Posts {
         this.content = content;
     }
 
-    /*
-    // 조회수 증가
-    public void upViewCount() {
-        this.viewCount++;
+    // 사용자 주입 (작성자를 알게 하기 위해)
+    // public void setUsers(Users users)
+    public void setMappingUsers(Users users) {
+        this.users = users;
     }
+
+    /*
+     * 조회수 증가
+     *     public void upViewCount() {
+     *         this.viewCount++;
+     *     }
     */
 
 }

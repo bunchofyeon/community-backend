@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-// 조회할 때 항상 "삭제 안 된 것"만 보이도록
+// 조회할 때 항상 삭제 안 된 것만 보이도록
 @Where(clause = "deleted_at IS NULL")
 // 진짜 삭제는 아니고 삭제한척하려고.. 삭제 시간만 적어서 null 이 아니게 설정하는거!
 @SQLDelete(sql = "UPDATE post_images SET deleted_at = NOW() WHERE id = ?")

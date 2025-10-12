@@ -7,10 +7,11 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # ?? ?: create / update / create-drop ? ??
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
+        use_sql_comments: true
 
 logging:
   level:
