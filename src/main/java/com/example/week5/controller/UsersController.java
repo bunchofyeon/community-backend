@@ -56,8 +56,8 @@ public class UsersController {
     }
 
     // 로그인 시 비밀번호 일치확인
-    //UsersController 에서 @AuthenticationPrincipal CustomUserDetails customUserDetails로 변경
-    // -> Users users = customUserDetails.getUsers(); 추가해서 users 조회하도록..
+    // @AuthenticationPrincipal CustomUserDetails customUserDetails로 변경
+    // -> Users users = customUserDetails.getUsers(); 추가해서 users 조회하도록
     @PostMapping("/checkPwd")
     public ResponseEntity<ApiResponse<UserResponse>> check(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,

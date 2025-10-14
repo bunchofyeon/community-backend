@@ -1,4 +1,79 @@
 package com.example.week5.controller;
 
+import com.example.week5.common.response.ApiResponse;
+import com.example.week5.dto.request.comments.CommentRequest;
+import com.example.week5.dto.response.comments.CommentResponse;
+import com.example.week5.entity.Users;
+import com.example.week5.security.jwt.CustomUserDetails;
+import com.example.week5.service.CommentsService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("posts/{postId}/comments")
+@RequiredArgsConstructor
+@Slf4j
 public class CommentsController {
+
+    private final CommentsService commentsService;
+
+
+    // 댓글 목록 조회
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<Page<CommentResponse>>> commentList(
+            @PathVariable Long postId,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        Page<CommentResponse> commentList = commentsService.getAllComments(pageable, postId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("댓글 리스트", commentList));
+    }
+
+    // 댓글 작성
+    @PostMapping("/write")
+    public ResponseEntity<ApiResponse<CommentResponse>> write(
+            @RequestBody CommentRequest commentRequest,
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Users users = customUserDetails.getUsers();
+
+        /*
+        if (customUserDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("로그인이 필요합니다."));
+        }
+
+         */
+        CommentResponse saveCommentDTO = commentsService.write(postId, users, commentRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("댓글 작성", saveCommentDTO));
+    }
+
+    // 댓글 수정
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<CommentResponse>> update(
+            @PathVariable Long commentId,
+            @RequestBody CommentRequest commentRequest) {
+
+        CommentResponse updateCommentDTO = commentsService.update(commentId, commentRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("댓글 수정", updateCommentDTO));
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long commentId) {
+        commentsService.delete(commentId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("댓글 삭제", null));
+    }
+
 }

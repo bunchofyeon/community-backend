@@ -1,6 +1,5 @@
 package com.example.week5.entity;
 
-import com.example.week5.security.jwt.CustomUserDetails;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,9 +9,7 @@ import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

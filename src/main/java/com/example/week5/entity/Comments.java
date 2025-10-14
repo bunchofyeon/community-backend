@@ -52,7 +52,7 @@ public class Comments {
     @Builder
     public Comments(String content, Long likeCount, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Users users, Posts posts) {
         this.content = content;
-        this.likeCount = likeCount;
+        this.likeCount = 0L;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -60,11 +60,18 @@ public class Comments {
         this.posts = posts;
     }
 
-        /*
+    public void writtenBy(Users writer) {
+        this.users = writer;
+    }
+
+    public void assignToPost(Posts post) {
+        this.posts = post;
+        posts.getComments().add(this); // 게시글 - 댓글은 양방향
+    }
+
     // update
     public void update(String content) {
         this.content = content;
     }
-     */
 
 }

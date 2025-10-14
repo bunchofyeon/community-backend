@@ -1,5 +1,3 @@
-// JWT 초보 연송 ㅠㅠ
-
 ### 파일 설명
 로그인한 “사용자 1명 정보” - CustomUserDetails
 사용자 정보 조회 - CustomUserDetailsService (로그인 시 이메일로 DB에서 사용자 찾는 애)

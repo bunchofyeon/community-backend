@@ -1,7 +1,6 @@
 package com.example.week5.repository;
 
 import com.example.week5.entity.Comments;
-import com.example.week5.entity.Posts;
 import com.example.week5.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,7 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
     // 1. 댓글 조회
     // 1-1. 댓글 전체 조회
     @Query(value = "SELECT c FROM Comments c JOIN FETCH c.users")
-    Page<Comments> findAllWithMember(Pageable pageable);
+    Page<Comments> findAllWithUsers(Pageable pageable);
 
     // 1-2. 댓글 상세 조회
     // 게시글 상세 조회 했을때 게시글과 댓글 같이 보여주려고 -> Service에서 합쳐야함

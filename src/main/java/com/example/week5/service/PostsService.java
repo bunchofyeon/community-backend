@@ -4,6 +4,7 @@ import com.example.week5.common.exception.custom.ResourceNotFoundException;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
+import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
 import com.example.week5.entity.Posts;
 import com.example.week5.entity.Users;
@@ -11,7 +12,13 @@ import com.example.week5.repository.PostsRepository;
 import com.example.week5.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,7 +29,13 @@ public class PostsService {
     private final PostsRepository postsRepository;
 
     // 게시글 목록 조회
-    // ...
+    public Page<PostListResponse> getAllPosts(Pageable pageable) {
+        Page<Posts> posts = postsRepository.findAllWithUsers(pageable);
+        List<PostListResponse> list = posts.getContent().stream()
+                .map(PostListResponse::fromEntity)
+                .collect(Collectors.toList());
+        return new PageImpl<>(list, pageable, posts.getTotalElements());
+    }
 
     // 게시글 검색
     // ...

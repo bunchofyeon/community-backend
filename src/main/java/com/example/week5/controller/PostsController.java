@@ -4,16 +4,22 @@ import com.example.week5.common.response.ApiResponse;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
+import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
 import com.example.week5.entity.Users;
 import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.PostsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/posts")
@@ -23,8 +29,14 @@ public class PostsController {
 
     private final PostsService postsService;
 
-    // 게시글 목록 조회, 페이징
-    // ...
+    // 게시글 목록 조회
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> boardList(
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostListResponse> listDTO = postsService.getAllPosts(pageable);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("게시글 목록 조회", listDTO));
+    }
 
     // 게시글 상세 조회
     @GetMapping("/{postId}")
@@ -47,7 +59,7 @@ public class PostsController {
     }
 
     // 게시글 수정 (게시글 상세 조회 -> 수정)
-    @PatchMapping("/{postId}/update")
+    @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostDetailsResponse>> update(
             @PathVariable Long postId,
             @RequestBody PostUpdateRequest postUpdateRequest) {
@@ -56,19 +68,11 @@ public class PostsController {
                 .body(ApiResponse.success("게시글 수정", updatePostDTO));
     }
 
-    // (게시글 상세보기 후에) 삭제
-    @DeleteMapping("/{postId}/delete")
+    // 게시글 삭제 (soft delete)
+    @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long postId) {
         postsService.delete(postId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("댓글 삭제", null));
     }
-
-    // soft delete -> ㅠㅠ...
-    /*
-    @PatchMapping("/{postId}/delete")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long postId) {
-        postsService.delete(postId);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-    */
 }

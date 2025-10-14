@@ -1,6 +1,5 @@
 package com.example.week5.dto.request.comments;
 
-import com.example.week5.dto.request.posts.PostSearchRequest;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
