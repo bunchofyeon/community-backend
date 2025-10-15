@@ -37,8 +37,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize
                                 -> authorize
                                 .requestMatchers(
+                                        "/users/register",
+                                        "/users/login",
+                                        "/users/checkEmail",
+                                        "/users/checkNickname"
+                                ).permitAll()
+                                // CORS preflight(OPTIONS) 요청 허용
+                                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                                // 나머지는 JWT 인증 필수
+                                .anyRequest().authenticated()
+                        /*
+                                .requestMatchers(
                                         "/**"
                                 ).permitAll()
+
+                         */
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(excep -> excep.authenticationEntryPoint(jwtAuthenticationEntryPoint))
