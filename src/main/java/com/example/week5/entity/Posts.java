@@ -53,7 +53,7 @@ public class Posts {
     private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private Users users;
 
     // 게시글 삭제하면 댓글도 삭제 (orphanRemoval = true)

@@ -3,6 +3,7 @@ package com.example.week5.service;
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
 import com.example.week5.dto.request.comments.CommentRequest;
 import com.example.week5.dto.response.comments.CommentResponse;
+import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.entity.Comments;
 import com.example.week5.entity.Posts;
 import com.example.week5.entity.Users;
@@ -30,7 +31,7 @@ public class CommentsService {
 
     // 댓글 목록 조회 (게시글별, 페이징)
     public Page<CommentResponse> getAllComments(Pageable pageable, Long postId) {
-        Page<Comments> comments = commentsRepository.findAllWithUsers(pageable);
+        Page<Comments> comments = commentsRepository.findAllByPostIdWithUsers(postId, pageable);
         List<CommentResponse> list = comments.getContent().stream()
                 .map(CommentResponse::fromEntity)
                 .collect(Collectors.toList());
@@ -69,7 +70,23 @@ public class CommentsService {
     }
 
     // 마이페이지 - 사용자별 댓글 조회
-    // ...
+    public Page<CommentResponse> getMyComments(Pageable pageable, Users users) {
+        Page<Comments> findComment = commentsRepository.findAllByUsers(pageable, users);
+        List<CommentResponse> list = findComment.getContent().stream()
+                .map(CommentResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(list, pageable, findComment.getTotalElements());
+    }
+
+    public Page<PostListResponse> getMyPosts(Pageable pageable, Users users) {
+        Page<Posts> findPost = postsRepository.findAllByUsers(pageable, users);
+        List<PostListResponse> list = findPost.getContent().stream()
+                .map(PostListResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(list, pageable, findPost.getTotalElements());
+    }
 
     // 댓글 삭제 (Soft Delete -> @SQLDelete 작동)
     public void delete(Long commentId) {

@@ -40,7 +40,10 @@ public class SecurityConfig {
                                         "/users/register",
                                         "/users/login",
                                         "/users/checkEmail",
-                                        "/users/checkNickname"
+                                        "/users/checkNickname",
+                                        "/posts/list",
+                                        "/posts/*",
+                                        "/posts/*/comments/list"
                                 ).permitAll()
                                 // CORS preflight(OPTIONS) 요청 허용
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()

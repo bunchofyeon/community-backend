@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.week5.entity.QPosts.posts;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -72,8 +74,27 @@ public class PostsService {
         return PostDetailsResponse.fromEntity(findPost);
     }
 
-    // 마이페이지 - 사용자별 게시글 조회
-    // ...
+    // 마이페이지 - 사용자별 게시글 목록(조회 말고 목록!)
+    public Page<PostListResponse> getMyPosts(Pageable pageable, Users users) {
+        Page<Posts> findPost = postsRepository.findAllByUsers(pageable, users);
+        List<PostListResponse> list = findPost.getContent().stream()
+                .map(PostListResponse::fromEntity)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(list, pageable, findPost.getTotalElements());
+    }
+
+    /*
+    * 1.
+    * orElseThrow(
+                () -> new ResourceNotFoundException("Posts"));
+    이거 왜 안해줌??
+    *
+    * 2.
+    * List<PostListResponse> list = findPost.getContent().stream()
+    * getContent()만 해도 됨?? 제목 본문 닉네임 다 가져와야하는데..
+    *
+    * */
 
     // 게시글 수정
     public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest) {

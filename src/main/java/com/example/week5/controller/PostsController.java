@@ -75,4 +75,5 @@ public class PostsController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("댓글 삭제", null));
     }
+
 }

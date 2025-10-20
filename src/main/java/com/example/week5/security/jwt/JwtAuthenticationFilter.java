@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰이 유효하면 SecurityContext에 인증 정보 저장
         if (jwtTokenUtil.validateToken(token)) {
             String email = jwtTokenUtil.getEmailFromToken(token);
+            System.out.println("JWT token email = " + email); // 잘 들어왔나 확인용..
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(email); // 이메일로 유저 찾기
 
             // 스프링 시큐리티가 이해하는 인증 객체 생성

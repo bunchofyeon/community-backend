@@ -23,8 +23,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          AuthenticationException authException)
             throws IOException, ServletException {
 
+        // 401 Unauthorized 직접 응답 반환
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"success\":false,\"message\":\"권한이 없습니다.\"}");
+
         // 401 Unauthorized 에러 반환
-        throw new UnauthenticatedException("권한이 없습니다.");
+        // throw new UnauthenticatedException("권한이 없습니다.");
 
     }
 }
