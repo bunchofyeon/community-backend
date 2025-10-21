@@ -73,7 +73,7 @@ public class PostsController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long postId) {
         postsService.delete(postId);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success("댓글 삭제", null));
+                .body(ApiResponse.success("게시글 삭제", null));
     }
 
 }

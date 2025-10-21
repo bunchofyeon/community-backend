@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.week5.entity.QPosts.posts;
 
 @Service
 @Transactional
@@ -108,4 +107,5 @@ public class PostsService {
     public void delete(Long postId) {
         postsRepository.deleteById(postId);
     }
+
 }

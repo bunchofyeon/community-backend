@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static com.example.week5.entity.QUsers.users;
-
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -115,5 +113,19 @@ public class UsersController {
                 .body(ApiResponse.success("사용자 댓글 목록 조회", listDTO));
     }
 
-    // 사용자 본인 탈퇴
+    // 마이페이지 - 회원 탈퇴 (+관리자??)
+    //
+    /*
+    public void delete(Long id) {
+        usersRepository.deleteById(id);
+    }
+    */
+
+    // 마이페이지 - 회원, 관리자 탈퇴 (soft delete)
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long userId) {
+        usersService.delete(userId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("회원 탈퇴", null));
+    }
 }

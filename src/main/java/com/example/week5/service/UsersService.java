@@ -163,7 +163,8 @@ public class UsersService {
         return UserResponse.fromEntity(updateUsers);
     }
 
-    // 4. 마이페이지, 관리자 - 회원 탈퇴
+    // 4. 마이페이지 - 관리자, 회원 탈퇴
+    // soft delete
     public void delete(Long id) {
         usersRepository.deleteById(id);
     }
