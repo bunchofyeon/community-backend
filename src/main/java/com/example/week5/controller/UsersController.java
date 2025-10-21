@@ -88,7 +88,7 @@ public class UsersController {
             @RequestBody UserUpdateRequest userUpdateRequest) {
         Users users = customUserDetails.getUsers();
         UserResponse successBody = usersService.update(users, userUpdateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("정보 수정 성공", successBody));
     }
 
@@ -114,4 +114,6 @@ public class UsersController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("사용자 댓글 목록 조회", listDTO));
     }
+
+    // 사용자 본인 탈퇴
 }
