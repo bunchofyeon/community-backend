@@ -3,14 +3,12 @@ package com.example.week5.dto.response.comments;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * 댓글 좋아요 응답 DTO
  */
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class CommentLikeResponse {
 

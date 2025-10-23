@@ -1,6 +1,7 @@
 package com.example.week5.controller;
 
 import com.example.week5.common.response.ApiResponse;
+import com.example.week5.common.response.ResponseFactory;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
@@ -19,6 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 
 @RestController
@@ -34,8 +38,9 @@ public class PostsController {
     public ResponseEntity<ApiResponse<Page<PostListResponse>>> boardList(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostListResponse> listDTO = postsService.getAllPosts(pageable);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success("게시글 목록 조회", listDTO));
+        // return ResponseEntity.status(HttpStatus.OK)
+        //        .body(ApiResponse.success("게시글 목록 조회", listDTO));
+        return ResponseFactory.success(listDTO);
     }
 
     // 게시글 상세 조회
@@ -54,9 +59,20 @@ public class PostsController {
         Users users = customUserDetails.getUsers();
 
         PostWriteResponse savePostDTO = postsService.write(postWriteRequest, users);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("게시글 작성", savePostDTO));
+
+        /*
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .replacePath("/posts/{id}")
+                .buildAndExpand(savePostDTO.getId())
+                .toUri();
+                */
+
+        URI location = URI.create("/posts/" + savePostDTO.getId());
+
+        return ResponseFactory.created(location, savePostDTO);
     }
+
 
     // 게시글 수정 (게시글 상세 조회 -> 수정)
     @PatchMapping("/{postId}")

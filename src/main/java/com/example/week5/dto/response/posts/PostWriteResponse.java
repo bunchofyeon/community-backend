@@ -1,16 +1,13 @@
 package com.example.week5.dto.response.posts;
 
-import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.entity.Posts;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class PostWriteResponse {
 

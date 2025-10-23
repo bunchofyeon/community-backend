@@ -25,7 +25,6 @@ public class CommentsController {
 
     private final CommentsService commentsService;
 
-
     // 댓글 목록 조회
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<Page<CommentResponse>>> commentList(
