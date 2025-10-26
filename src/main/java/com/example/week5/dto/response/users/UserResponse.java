@@ -15,13 +15,16 @@ public class UserResponse {
     private String profileImageUrl;
     private String role;
 
+    private String currentPassword;
+
     @Builder
-    public UserResponse(Long id, String email, String nickname, String profileImageUrl, String role) {
+    public UserResponse(Long id, String email, String nickname, String profileImageUrl, String role, String currentPassword) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.role = role;
+        this.currentPassword = currentPassword;
     }
 
     // Entity -> DTO 변환

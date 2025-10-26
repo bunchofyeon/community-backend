@@ -44,7 +44,9 @@ public class SecurityConfig {
                                         "/posts/list",
                                         "/posts/*",
                                         "/posts/*/comments/list",
-                                        "/terms", "/privacy"
+                                        "/terms", "/privacy",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**"
 
                                 ).permitAll()
                                 // CORS preflight(OPTIONS) 요청 허용

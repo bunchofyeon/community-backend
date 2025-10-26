@@ -120,4 +120,22 @@ public class UsersController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("회원 탈퇴", null));
     }
+
+    // 이건 꼭 필요한가... 더 고민해야겠음..
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> me(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Users me = customUserDetails.getUsers();
+        return ResponseEntity.ok(
+                ApiResponse.success("me", UserResponse.fromEntity(me))
+        );
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> deleteMe(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        usersService.delete(customUserDetails.getUsers().getId());
+        return ResponseEntity.ok(ApiResponse.success("회원 탈퇴", null));
+    }
 }

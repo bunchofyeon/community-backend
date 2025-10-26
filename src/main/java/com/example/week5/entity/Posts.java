@@ -1,6 +1,7 @@
 package com.example.week5.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,8 @@ public class Posts {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 26)
+    @Size(min=1, max=26)
     private String title;
 
     @Lob
@@ -59,6 +61,10 @@ public class Posts {
     // 게시글 삭제하면 댓글도 삭제 (orphanRemoval = true)
     @OneToMany(mappedBy = "posts", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comments> comments = new ArrayList<>();
+
+    // 게시글 삭제하면 파일도 삭제
+    @OneToMany(mappedBy = "posts", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Files> files = new ArrayList<>();
 
     @Builder
     public Posts(String title, String content, Long likeCount, Long commentCount, Long viewCount, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Users users) {

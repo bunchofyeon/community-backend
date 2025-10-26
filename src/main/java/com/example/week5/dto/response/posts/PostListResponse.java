@@ -22,15 +22,16 @@ public class PostListResponse {
     private Long viewCount;
     private LocalDateTime createdAt;
     // 1. 댓글 수는 redis 배우고 나서 다시...
-    // 2. 수정일은 상세 화면에서만 보여줌 // private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     @Builder
-    public PostListResponse(Long id, String title, String nickname, Long viewCount, LocalDateTime createdAt) {
+    public PostListResponse(Long id, String title, String nickname, Long viewCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.nickname = nickname;
         this.viewCount = viewCount;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // Entity -> DTO
@@ -41,6 +42,7 @@ public class PostListResponse {
                 .nickname(posts.getUsers().getNickname())
                 .viewCount(posts.getViewCount())
                 .createdAt(posts.getCreatedAt())
+                .updatedAt(posts.getUpdatedAt())
                 .build();
     }
 

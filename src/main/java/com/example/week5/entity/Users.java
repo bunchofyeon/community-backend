@@ -74,5 +74,14 @@ public class Users {
         this.profileImageUrl = profileImageUrl;
     }
 
-    // password 구현 어떻게 해야될까...!!
+    // setter 대신
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+    public void changeProfileImageUrl(String url) {
+        this.profileImageUrl = url;
+    }
 }

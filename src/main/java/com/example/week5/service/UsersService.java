@@ -40,7 +40,7 @@ public class UsersService {
     private final UsersRepository usersRepository;
 
     private final AuthenticationManager authenticationManager;
-    private final CustomUserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
 
     // 1. 회원가입
@@ -95,9 +95,14 @@ public class UsersService {
     // 비밀번호 일치 검사
     private void checkPassword(String password, String passwordCheck) {
         if (!password.equals(passwordCheck)) {
-        // if (password == null || passwordCheck == null || !password.equals(passwordCheck)) {
             throw new BadRequestException("패스워드 불일치");
         }
+        /*
+        *
+        if (password == null || passwordCheck == null || !password.equals(passwordCheck)) {
+            throw new BadRequestException("패스워드 불일치");
+        }
+         */
     }
 
     // 2. 로그인 구현
@@ -177,5 +182,6 @@ public class UsersService {
                 .collect(Collectors.toList());
         return new PageImpl<>(list, pageable, users.getTotalElements());
     }
+
 
 }

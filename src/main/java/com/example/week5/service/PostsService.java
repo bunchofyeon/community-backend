@@ -100,6 +100,7 @@ public class PostsService {
         Posts updatePost = postsRepository.findByIdWithUsers(postId).orElseThrow( // 일단... (게시글 + 작성자)만 조회
                 () -> new ResourceNotFoundException("Posts"));
         updatePost.update(postUpdateRequest.getTitle(), postUpdateRequest.getContent());
+        postsRepository.saveAndFlush(updatePost ); // updated_at 채워지게
         return PostDetailsResponse.fromEntity(updatePost);
     }
 
