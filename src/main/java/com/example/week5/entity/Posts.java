@@ -1,5 +1,6 @@
 package com.example.week5.entity;
 
+import com.example.week5.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -7,9 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,10 +16,10 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-@Where(clause = "deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE posts SET deleted_at = NOW() WHERE id = ?")
-public class Posts {
+@Where(clause = "deleted_at IS NULL")
+public class Posts extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,26 +33,19 @@ public class Posts {
     private String content;
 
     @Column(nullable = false, name = "like_count")
-    private Long likeCount;
+    private Long likeCount = 0L;
 
     @Column(nullable = false, name = "comment_count")
-    private Long commentCount;
+    private Long commentCount = 0L;
 
     @Column(nullable = false, name = "view_count")
-    private Long viewCount;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false, name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Long viewCount = 0L;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // 작성자 (필수니까 optional = false, nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private Users users;
 
@@ -67,16 +58,15 @@ public class Posts {
     private List<Files> files = new ArrayList<>();
 
     @Builder
-    public Posts(String title, String content, Long likeCount, Long commentCount, Long viewCount, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Users users) {
+    private Posts(String title, String content, Users users) {
         this.title = title;
         this.content = content;
-        this.likeCount = 0L;
-        this.commentCount = 0L;
-        this.viewCount = 0L;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deletedAt = deletedAt;
         this.users = users;
+    }
+
+    // 조회수 증가
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 
     // 수정사항 Dirty Checking
@@ -91,12 +81,4 @@ public class Posts {
     public void setMappingUsers(Users users) {
         this.users = users;
     }
-
-    /*
-     * 조회수 증가
-     *     public void upViewCount() {
-     *         this.viewCount++;
-     *     }
-    */
-
 }

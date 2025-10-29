@@ -1,27 +1,21 @@
 package com.example.week5.entity;
 
+import com.example.week5.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class CommentLikes {
+public class CommentLikes extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -32,8 +26,7 @@ public class CommentLikes {
     private Comments comments;
 
     @Builder
-    public CommentLikes(LocalDateTime createdAt, Users users, Comments comments) {
-        this.createdAt = createdAt;
+    public CommentLikes(Users users, Comments comments) {
         this.users = users;
         this.comments = comments;
     }

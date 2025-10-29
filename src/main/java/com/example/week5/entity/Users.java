@@ -1,13 +1,12 @@
 package com.example.week5.entity;
 
+import com.example.week5.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Where(clause = "deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
-public class Users {
+public class Users extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,14 +37,6 @@ public class Users {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false, name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -54,14 +45,12 @@ public class Users {
     private Role role;
 
     @Builder
-    public Users(String email, String password, String nickname, String profileImageUrl, LocalDateTime lastLoginAt, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Role role) {
+    public Users(String email, String password, String nickname, String profileImageUrl, LocalDateTime lastLoginAt, LocalDateTime deletedAt, Role role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.lastLoginAt = lastLoginAt;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
         this.role = role;
     }

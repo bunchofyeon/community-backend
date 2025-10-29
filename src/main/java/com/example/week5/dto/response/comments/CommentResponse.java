@@ -1,5 +1,6 @@
 package com.example.week5.dto.response.comments;
 
+import com.example.week5.common.BaseTimeEntity;
 import com.example.week5.entity.Comments;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class CommentResponse {
+public class CommentResponse extends BaseTimeEntity {
 
     private Long id;
     private String content;
