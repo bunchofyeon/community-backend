@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class FilesService {
+public class ProfileImagesService {
 }

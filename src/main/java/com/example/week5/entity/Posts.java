@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE posts SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE posts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
 public class Posts extends BaseTimeEntity {
 
@@ -56,6 +56,16 @@ public class Posts extends BaseTimeEntity {
     // 게시글 삭제하면 파일도 삭제
     @OneToMany(mappedBy = "posts", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Files> files = new ArrayList<>();
+
+    public void addFile(Files file) {
+        files.add(file);
+        file.setMappingPosts(this); // 양방향 연결 유지
+    }
+
+    public void removeFile(Files file) {
+        files.remove(file);
+        file.setMappingPosts(null); // 끊어줌
+    }
 
     @Builder
     private Posts(String title, String content, Users users) {

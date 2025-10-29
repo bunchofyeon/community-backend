@@ -1,7 +1,9 @@
 package com.example.week5.entity;
 
 import com.example.week5.common.BaseTimeEntity;
+import com.example.week5.dto.request.posts.PostWriteRequest;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -9,16 +11,13 @@ import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-
-@Getter
 @Entity
-@NoArgsConstructor
-// @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// @Table
-@EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE profileImages SET deleted_at = NOW() WHERE id = ?")
+@Getter @NoArgsConstructor
+
+@Table(name = "profile_images")
+@SQLDelete(sql = "UPDATE profile_Images SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
-public class profileImages extends BaseTimeEntity {
+public class ProfileImages extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +32,8 @@ public class profileImages extends BaseTimeEntity {
     @Column(nullable = false, name = "file_size")
     private Long fileSize;
 
-    @Column(nullable = false, unique = true, name = "storage_path", length = 512)
-    private String storagePath;
+    @Column(nullable = false, unique = true, name = "storage_key")
+    private String storageKey;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -48,4 +47,5 @@ public class profileImages extends BaseTimeEntity {
     public void setMappingUser(Users users) {
         this.users = users;
     }
+
 }

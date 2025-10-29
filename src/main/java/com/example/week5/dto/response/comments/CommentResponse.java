@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class CommentResponse extends BaseTimeEntity {
 
     private Long id;
+    private Long postId;
     private String content;
     private String nickname;
     private Long likeCount;
@@ -25,8 +26,9 @@ public class CommentResponse extends BaseTimeEntity {
     private LocalDateTime updatedAt;
 
     @Builder
-    public CommentResponse(Long id, String content, String nickname, Long likeCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public CommentResponse(Long id, Long postId, String content, String nickname, Long likeCount, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
+        this.postId = postId;
         this.content = content;
         this.nickname = nickname;
         this.likeCount = likeCount;
@@ -38,6 +40,7 @@ public class CommentResponse extends BaseTimeEntity {
     public static CommentResponse fromEntity(Comments comments) {
         return CommentResponse.builder()
                 .id(comments.getId())
+                .postId(comments.getPosts().getId()) // 게시글이랑 댓글 연결
                 .content(comments.getContent())
                 .nickname(comments.getUsers().getNickname()) // Users 엔티티 참조
                 .likeCount(comments.getLikeCount())

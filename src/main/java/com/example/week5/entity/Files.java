@@ -10,12 +10,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Entity
-@NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE files SET deleted_at = NOW() WHERE id = ?")
+@Getter @NoArgsConstructor
 @Where(clause = "deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE files SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class Files extends BaseTimeEntity {
 
     @Id
@@ -31,8 +29,8 @@ public class Files extends BaseTimeEntity {
     @Column(nullable = false, name = "file_size")
     private Long fileSize;
 
-    @Column(nullable = false, unique = true)
-    private String storagePath; // 로컬 경로나 S3 key
+    @Column(nullable = false, unique = true, name = "storage_key")
+    private String storageKey; // 로컬 경로나 S3 key
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -41,6 +39,7 @@ public class Files extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
     private Posts posts;
+
 
     // public void setPosts(Posts posts)
     public void setMappingPosts(Posts posts) {

@@ -14,21 +14,20 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @Where(clause = "deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class Users extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true)
     private String nickname;
 
     @Column(name = "profile_image_url")
@@ -43,6 +42,9 @@ public class Users extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ProfileImages profileImages;
 
     @Builder
     public Users(String email, String password, String nickname, String profileImageUrl, LocalDateTime lastLoginAt, LocalDateTime deletedAt, Role role) {
