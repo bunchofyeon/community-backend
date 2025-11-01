@@ -1,69 +1,113 @@
 package com.example.week5.security.jwt;
 
+import com.example.week5.common.exception.custom.UnauthorizedException;
+import com.example.week5.entity.Users;
+import com.example.week5.repository.UsersRepository;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
-/**
- * JWT 토큰 검증을 수행하는 필터
- * (요청이 들어올 때마다 실행됨)
- * */
+import java.util.Arrays;
+import java.util.Optional;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final UsersRepository usersRepository;
+
+    // 화이트리스트: 필터 제외 경로
+    private static final String[] EXCLUDED_PATHS = {
+            "/users/login", "/users/register", "/refresh", "/error", "/docs"
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String p = request.getRequestURI();
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true; // CORS preflight
+        if (p.startsWith("/assets") || p.startsWith("/static") || "/favicon.ico".equals(p)) return true;
+        return Arrays.stream(EXCLUDED_PATHS).anyMatch(p::startsWith);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)
+                                    FilterChain chain)
             throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+        // 1) 토큰 추출 (헤더 우선, 없으면 쿠키)
+        Optional<String> tokenOpt = extractTokenFromHeader(request)
+                .or(() -> extractTokenFromCookie(request));
 
-        // 헤더가 없거나 Bearer 토큰이 아니면 다음 필터로
-        if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+        if (tokenOpt.isEmpty()) {
+            unauthorized(response, "Missing token");
             return;
         }
 
-        // "Bearer " 다음부터가 실제 토큰 문자열 이라서...
-        String token = header.substring(7);
+        String token = tokenOpt.get();
 
-        // 토큰이 유효하면 SecurityContext에 인증 정보 저장
-        if (jwtTokenUtil.validateToken(token)) {
-            String email = jwtTokenUtil.getEmailFromToken(token);
-            System.out.println("JWT token email = " + email); // 잘 들어왔나 확인용..
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email); // 이메일로 유저 찾기
+        try {
+            // 2) 토큰 유효성 검증
+            if (!jwtTokenUtil.validateToken(token)) {
+                unauthorized(response, "Invalid or expired token");
+                return;
+            }
+            // 3) 클레임 추출
+            Claims c = jwtTokenUtil.parseClaims(token);
+            String email = c.get("email", String.class);
+            String role  = c.get("role", String.class);
 
-            // 스프링 시큐리티가 이해하는 인증 객체 생성
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()); // 누구인지, 자격증명(null), 권한
+            // 컨트롤러에서 꺼내 쓰도록 인증 결과 주입
+            request.setAttribute("email", email);
+            request.setAttribute("role", role);
 
-            // 요청 관련 부가정보(IP, 세션 등) 붙이기
-            // 왜??... 보안 감사/로그 등에 도움... 흠...
-            authentication.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request));
+            // 요청마다 상태 확인
+            Users user = usersRepository.findByEmail(email)
+                    .orElseThrow(() -> new UnauthorizedException("권한이 없습니다."));
 
-            // 현재 요청의 보안 컨텍스트에 인증됨 상태로 저장 → 이후 @AuthenticationPrincipal 사용 가능
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            chain.doFilter(request, response);
+
+        } catch (UnauthorizedException e) {
+            unauthorized(response, e.getMessage());
+        } catch (Exception e) {
+            log.error("JWT filter error", e);
+            unauthorized(response, "Authentication failed");
         }
+    }
 
-        // 다음 필터 실행
-        filterChain.doFilter(request, response);
+    private Optional<String> extractTokenFromHeader(HttpServletRequest request) {
+        String h = request.getHeader("Authorization");
+        if (h != null && h.startsWith("Bearer ")) return Optional.of(h.substring(7));
+        return Optional.empty();
+    }
+
+    private Optional<String> extractTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return Optional.empty();
+        return Arrays.stream(cookies)
+                .filter(c -> "accessToken".equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst();
+    }
+
+    private void unauthorized(HttpServletResponse res, String msg) throws IOException {
+        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        res.setContentType("application/json;charset=UTF-8");
+        res.getWriter().write("{\"success\":false,\"message\":\"" + msg + "\"}");
+    }
+
+    private Long parseLong(String v) {
+        try { return Long.parseLong(v); }
+        catch (Exception e) { throw new UnauthorizedException("Invalid subject claim"); }
     }
 }

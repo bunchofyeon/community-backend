@@ -1,6 +1,7 @@
 package com.example.week5.service;
 
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
+import com.example.week5.common.exception.custom.UnauthorizedException;
 import com.example.week5.dto.request.comments.CommentRequest;
 import com.example.week5.dto.response.comments.CommentResponse;
 import com.example.week5.dto.response.posts.PostListResponse;
@@ -39,7 +40,7 @@ public class CommentsService {
     }
 
     // 댓글 등록
-    public CommentResponse write(Long postId, Users users, CommentRequest commentRequest) {
+    public CommentResponse write(Long postId, String email, CommentRequest commentRequest) {
 
         // 1) 게시글 정보 조회
         Posts posts = postsRepository.findById(postId).orElseThrow(
@@ -47,8 +48,8 @@ public class CommentsService {
         );
 
         // 2) 댓글 작성자 정보 검색
-        Users commentWriter = usersRepository.findById(users.getId()).orElseThrow(
-                () -> new ResourceNotFoundException("Users")
+        Users commentWriter = usersRepository.findByEmail(email).orElseThrow(
+                () -> new UnauthorizedException("로그인 후 이용해주세요.")
         );
 
         // Entity 변환, 연관관계 매핑

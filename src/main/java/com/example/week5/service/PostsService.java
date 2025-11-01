@@ -1,6 +1,7 @@
 package com.example.week5.service;
 
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
+import com.example.week5.common.exception.custom.UnauthorizedException;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
@@ -43,11 +44,11 @@ public class PostsService {
 
 
     // 게시글 등록
-    public PostWriteResponse write(PostWriteRequest postWriteRequest, Users users) {
+    public PostWriteResponse write(PostWriteRequest postWriteRequest, String email) {
 
         // 1) 작성자 조회
-        Users writer = usersRepository.findByEmail(users.getEmail()).orElseThrow(
-                () -> new ResourceNotFoundException("Users"));
+        Users writer = usersRepository.findByEmail(email).orElseThrow(
+                () -> new UnauthorizedException("로그인 후 이용해주세요."));
 
         // 2) DTO -> Entity
         Posts posts = PostWriteRequest.ofEntity(postWriteRequest);

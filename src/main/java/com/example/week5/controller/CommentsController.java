@@ -3,9 +3,8 @@ package com.example.week5.controller;
 import com.example.week5.common.response.ApiResponse;
 import com.example.week5.dto.request.comments.CommentRequest;
 import com.example.week5.dto.response.comments.CommentResponse;
-import com.example.week5.entity.Users;
-import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.CommentsService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -14,8 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("posts/{postId}/comments")
@@ -41,17 +40,10 @@ public class CommentsController {
     public ResponseEntity<ApiResponse<CommentResponse>> write(
             @RequestBody CommentRequest commentRequest,
             @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Users users = customUserDetails.getUsers();
+            HttpServletRequest request) {
+        String email = (String) request.getAttribute("email");
 
-        /*
-        if (customUserDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("로그인이 필요합니다."));
-        }
-
-         */
-        CommentResponse saveCommentDTO = commentsService.write(postId, users, commentRequest);
+        CommentResponse saveCommentDTO = commentsService.write(postId, email, commentRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("댓글 작성", saveCommentDTO));
     }

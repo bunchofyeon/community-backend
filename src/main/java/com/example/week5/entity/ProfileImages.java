@@ -1,14 +1,11 @@
 package com.example.week5.entity;
 
 import com.example.week5.common.BaseTimeEntity;
-import com.example.week5.dto.request.posts.PostWriteRequest;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 @Entity

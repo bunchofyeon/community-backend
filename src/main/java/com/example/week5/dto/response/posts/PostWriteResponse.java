@@ -1,6 +1,5 @@
 package com.example.week5.dto.response.posts;
 
-import com.example.week5.common.BaseTimeEntity;
 import com.example.week5.entity.Posts;
 import lombok.Builder;
 import lombok.Getter;

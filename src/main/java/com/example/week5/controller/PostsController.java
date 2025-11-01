@@ -7,9 +7,8 @@ import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
 import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
-import com.example.week5.entity.Users;
-import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.PostsService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,9 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
@@ -55,18 +52,10 @@ public class PostsController {
     @PostMapping("/write")
     public ResponseEntity<ApiResponse<PostWriteResponse>> write(
             @RequestBody PostWriteRequest postWriteRequest,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Users users = customUserDetails.getUsers();
+            HttpServletRequest request) {
+        String email = (String) request.getAttribute("email");
 
-        PostWriteResponse savePostDTO = postsService.write(postWriteRequest, users);
-
-        /*
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequestUri()
-                .replacePath("/posts/{id}")
-                .buildAndExpand(savePostDTO.getId())
-                .toUri();
-                */
+        PostWriteResponse savePostDTO = postsService.write(postWriteRequest, email);
 
         URI location = URI.create("/posts/" + savePostDTO.getId());
 

@@ -21,6 +21,7 @@ public class JwtTokenUtil implements Serializable {
     public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email) // 토큰 주인 (이메일)
+                .claim("email", email)
                 .claim("role", role) // 추가 정보
                 .setIssuedAt(new Date()) // 발급 시각
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 만료 시간 (언제 만료될지)
@@ -45,7 +46,7 @@ public class JwtTokenUtil implements Serializable {
 
     // 4. 토큰 검증 및 내용 추출 (토큰 파싱)
     // 토큰을 열어서 안에 들어있는 이메일, role, 만료시간 같은 내용을 꺼내는 함수
-    private Claims parseClaims(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY) // 검증
                 .parseClaimsJws(token) // 토큰 복호화
