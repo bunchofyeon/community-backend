@@ -25,7 +25,6 @@ public class Posts extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false, length = 26)
-    @Size(min=1, max=26)
     private String title;
 
     @Lob

@@ -7,9 +7,11 @@ import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
 import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
+import com.example.week5.entity.Posts;
 import com.example.week5.entity.Users;
 import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.PostsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -45,7 +47,7 @@ public class PostsController {
 
     // 게시글 상세 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostDetailsResponse>> detail(@PathVariable("postId") Long postId) {
+    public ResponseEntity<ApiResponse<PostDetailsResponse>> detail(@PathVariable Long postId) {
         PostDetailsResponse findPostDTO = postsService.detail(postId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("게시글 조회", findPostDTO));
@@ -54,32 +56,24 @@ public class PostsController {
     // 게시글 작성
     @PostMapping("/write")
     public ResponseEntity<ApiResponse<PostWriteResponse>> write(
-            @RequestBody PostWriteRequest postWriteRequest,
+            @Valid @RequestBody PostWriteRequest postWriteRequest,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Users users = customUserDetails.getUsers();
-
         PostWriteResponse savePostDTO = postsService.write(postWriteRequest, users);
 
-        /*
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequestUri()
-                .replacePath("/posts/{id}")
-                .buildAndExpand(savePostDTO.getId())
-                .toUri();
-                */
-
         URI location = URI.create("/posts/" + savePostDTO.getId());
-
         return ResponseFactory.created(location, savePostDTO);
     }
 
 
-    // 게시글 수정 (게시글 상세 조회 -> 수정)
+    // 게시글 수정
     @PatchMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostDetailsResponse>> update(
             @PathVariable Long postId,
-            @RequestBody PostUpdateRequest postUpdateRequest) {
-        PostDetailsResponse updatePostDTO = postsService.update(postId, postUpdateRequest);
+            @Valid @RequestBody PostUpdateRequest postUpdateRequest,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Users users = customUserDetails.getUsers();
+        PostDetailsResponse updatePostDTO = postsService.update(postId, postUpdateRequest, users);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("게시글 수정", updatePostDTO));
     }

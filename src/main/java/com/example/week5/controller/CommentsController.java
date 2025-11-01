@@ -6,6 +6,7 @@ import com.example.week5.dto.response.comments.CommentResponse;
 import com.example.week5.entity.Users;
 import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.CommentsService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,18 +40,10 @@ public class CommentsController {
     // 댓글 작성
     @PostMapping("/write")
     public ResponseEntity<ApiResponse<CommentResponse>> write(
-            @RequestBody CommentRequest commentRequest,
+            @Valid @RequestBody CommentRequest commentRequest,
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Users users = customUserDetails.getUsers();
-
-        /*
-        if (customUserDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("로그인이 필요합니다."));
-        }
-
-         */
         CommentResponse saveCommentDTO = commentsService.write(postId, users, commentRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("댓글 작성", saveCommentDTO));
@@ -60,9 +53,11 @@ public class CommentsController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<ApiResponse<CommentResponse>> update(
             @PathVariable Long commentId,
-            @RequestBody CommentRequest commentRequest) {
+            @Valid @RequestBody CommentRequest commentRequest,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Users user = customUserDetails.getUsers();
 
-        CommentResponse updateCommentDTO = commentsService.update(commentId, commentRequest);
+        CommentResponse updateCommentDTO = commentsService.update(commentId, commentRequest, user);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("댓글 수정", updateCommentDTO));
     }

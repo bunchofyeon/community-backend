@@ -32,13 +32,4 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
     // 1-3. 사용자별 댓글 조회
     Page<Comments> findAllByUsers(Pageable pageable, Users users);
 
-    // 2. 댓글 검색
-    // 2-1. 댓글 내용 검색
-    @Query(value = "SELECT c FROM Comments c JOIN FETCH c.users WHERE c.content LIKE %:content%")
-    Page<Comments> findAllContentContaining(String content, Pageable pageable);
-
-    // 2-2. 댓글 작성자 검색
-    @Query(value = "SELECT c FROM Comments c JOIN FETCH c.users WHERE c.users.nickname LIKE %:nickname%")
-    Page<Comments> findAllNicknameContaining(String nickname, Pageable pageable);
-
 }

@@ -1,6 +1,7 @@
 package com.example.week5.service;
 
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
+import com.example.week5.common.exception.custom.UnauthenticatedException;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
@@ -12,6 +13,7 @@ import com.example.week5.repository.PostsRepository;
 import com.example.week5.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 @RequiredArgsConstructor
 public class PostsService {
 
@@ -64,12 +67,12 @@ public class PostsService {
 
     // 게시글 상세 조회
     public PostDetailsResponse detail(Long postId) {
-        Posts findPost = postsRepository.findByIdWithUsers(postId).orElseThrow(
-                () -> new ResourceNotFoundException("Posts"));
-
         // 조회수 증가
-        // findBoard.upViewCount();
+        postsRepository.incrementViewCount(postId);
 
+        // 게시글 조회 (최신 상태로...)
+        Posts findPost = postsRepository.findByIdWithUsers(postId).orElseThrow(
+                () -> new ResourceNotFoundException("게시글을 찾을 수 없습니다."));
         return PostDetailsResponse.fromEntity(findPost);
     }
 
@@ -83,22 +86,15 @@ public class PostsService {
         return new PageImpl<>(list, pageable, findPost.getTotalElements());
     }
 
-    /*
-    * 1.
-    * orElseThrow(
-                () -> new ResourceNotFoundException("Posts"));
-    이거 왜 안해줌??
-    *
-    * 2.
-    * List<PostListResponse> list = findPost.getContent().stream()
-    * getContent()만 해도 됨?? 제목 본문 닉네임 다 가져와야하는데..
-    *
-    * */
-
     // 게시글 수정
-    public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest) {
+    public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest, Users users) {
         Posts updatePost = postsRepository.findByIdWithUsers(postId).orElseThrow( // 일단... (게시글 + 작성자)만 조회
-                () -> new ResourceNotFoundException("Posts"));
+                () -> new ResourceNotFoundException("존재하지 않는 Posts"));
+
+        if (!updatePost.getUsers().getId().equals(users.getId())) {
+            throw new UnauthenticatedException("게시글 수정 권한이 없습니다.");
+        }
+
         updatePost.update(postUpdateRequest.getTitle(), postUpdateRequest.getContent());
         postsRepository.saveAndFlush(updatePost ); // updated_at 채워지게
         return PostDetailsResponse.fromEntity(updatePost);

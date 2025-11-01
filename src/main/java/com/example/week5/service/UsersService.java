@@ -94,15 +94,12 @@ public class UsersService {
 
     // 비밀번호 일치 검사
     private void checkPassword(String password, String passwordCheck) {
+        if (password == null || passwordCheck == null) {
+            throw new BadRequestException("비밀번호를 입력 안함");
+        }
         if (!password.equals(passwordCheck)) {
             throw new BadRequestException("패스워드 불일치");
         }
-        /*
-        *
-        if (password == null || passwordCheck == null || !password.equals(passwordCheck)) {
-            throw new BadRequestException("패스워드 불일치");
-        }
-         */
     }
 
     // 2. 로그인 구현
@@ -127,9 +124,9 @@ public class UsersService {
     }
 
     // 사용자 인증
-        // 헷갈리지 말자...
-        // 로그인 아직 안한 상태에서 인증 문제는 400 BadRequestException
-        // 로그인 된 상태에서 권한 문제는 403 forbidden, UnauthenticatedException
+    // 헷갈리지 말자...
+    // 로그인 아직 안한 상태에서 인증 문제는 400 BadRequestException
+    // 로그인 된 상태에서 권한 문제는 403 forbidden, UnauthenticatedException
     private void authenticate(String email, String pwd) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, pwd));
@@ -143,7 +140,7 @@ public class UsersService {
     // 비말번호 인코딩 체크 (사용자가 입력한 비밀번호와 디비에 저장된 비밀번호가 같은지 체크)
     private void checkEncodePassword(String rawPassword, String encodedPassword) {
         if (!encoder.matches(rawPassword, encodedPassword)) {
-            throw new BadRequestException("패스워드 불일치");
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
         }
     }
 
@@ -157,14 +154,39 @@ public class UsersService {
 
     // 3-2. 사용자 정보 수정
     public UserResponse update(Users users, UserUpdateRequest userUpdateRequest) {
-        checkPassword(userUpdateRequest.getPassword(), userUpdateRequest.getPasswordCheck());
-        String encodePwd = encoder.encode(userUpdateRequest.getPassword());
+
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(userUpdateRequest.getCurrentPassword(), users.getPassword())) {
+            throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 비밀번호 바꿀 사용자 찾기
         Users updateUsers = usersRepository.findByEmail(users.getEmail()).orElseThrow(
-                () -> new ResourceNotFoundException("Member")
+                () -> new ResourceNotFoundException("사용자를 찾을 수 없습니다.")
         );
 
+        // 닉네임 바꾸기
+        if (!users.getNickname().equals(userUpdateRequest.getNickname())) {
+            updateUsers.changeNickname(userUpdateRequest.getNickname());
+        }
+
+        // 프로필 사진 바꾸기
+        // ...
+
+        // 비밀번호 바꾸기
         // encodePwd : 디비에는 암호화된 비밀번호를 저장하니까 수정할때도 인코딩해서 넣겠다는 뜻
-        updateUsers.update(encodePwd, userUpdateRequest.getNickname(), userUpdateRequest.getProfileImageUrl());
+        // checkPassword(userUpdateRequest.getPassword(), userUpdateRequest.getPasswordCheck());
+        // String encodePwd = encoder.encode(userUpdateRequest.getPassword());
+        // updateUsers.changePassword(encodePwd);
+
+        // 3) 새 비밀번호 둘 다 있을 때만 변경
+        // 이건 좀 더 고민해봐야함
+        if (userUpdateRequest.getPassword() != null || userUpdateRequest.getPasswordCheck() != null) {
+            checkPassword(userUpdateRequest.getPassword(), userUpdateRequest.getPasswordCheck());
+            String encodePwd = encoder.encode(userUpdateRequest.getPassword());
+            updateUsers.changePassword(encodePwd);
+        }
+
         return UserResponse.fromEntity(updateUsers);
     }
 
