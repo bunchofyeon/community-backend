@@ -14,6 +14,7 @@ import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.CommentsService;
 import com.example.week5.service.PostsService;
 import com.example.week5.service.UsersService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +52,8 @@ public class UsersController {
 
     // 회원가입
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<ApiResponse<RegisterResponse>> register(
+            @Valid @RequestBody RegisterRequest registerRequest) {
         RegisterResponse successBody = usersService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입 성공", successBody));
@@ -59,13 +61,15 @@ public class UsersController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest loginRequest) {
         LoginResponse successBody = usersService.login(loginRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("로그인 성공", successBody));
     }
 
-    // 로그인 시 비밀번호 일치확인
+    // 로그인 하고나서 비밀번호 일치확인
+    // 내가 이걸 왜 구현한거지?????.....
     // @AuthenticationPrincipal CustomUserDetails customUserDetails로 변경
     // -> Users users = customUserDetails.getUsers(); 추가해서 users 조회하도록
     @PostMapping("/checkPwd")
@@ -80,10 +84,10 @@ public class UsersController {
     }
 
     // 사용자 정보 수정
-    @PutMapping("/update")
+    @PatchMapping ("/update")
     public ResponseEntity<ApiResponse<UserResponse>> update(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody UserUpdateRequest userUpdateRequest) {
+            @Valid @RequestBody UserUpdateRequest userUpdateRequest,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Users users = customUserDetails.getUsers();
         UserResponse successBody = usersService.update(users, userUpdateRequest);
         return ResponseEntity.status(HttpStatus.OK)
@@ -91,7 +95,6 @@ public class UsersController {
     }
 
     // 마이페이지 - 사용자별 게시글 조회
-    // 여기에 구현하는게 맞을까 ㅠㅠ
     @GetMapping("/myPosts")
     public ResponseEntity<ApiResponse<Page<PostListResponse>>> myPosts(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -113,15 +116,6 @@ public class UsersController {
                 .body(ApiResponse.success("사용자 댓글 목록 조회", listDTO));
     }
 
-    // 마이페이지 - 회원, 관리자 탈퇴 (soft delete)
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long userId) {
-        usersService.delete(userId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success("회원 탈퇴", null));
-    }
-
-    // 이건 꼭 필요한가... 더 고민해야겠음..
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> me(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -138,4 +132,13 @@ public class UsersController {
         usersService.delete(customUserDetails.getUsers().getId());
         return ResponseEntity.ok(ApiResponse.success("회원 탈퇴", null));
     }
+
+    // 관리자가 유저 탈퇴 시킬때 (soft delete 해야되나?)
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long userId) {
+        usersService.delete(userId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("회원 탈퇴", null));
+    }
+
 }

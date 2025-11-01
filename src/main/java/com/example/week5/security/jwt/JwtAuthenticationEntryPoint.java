@@ -28,5 +28,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"success\":false,\"message\":\"권한이 없습니다.\"}");
 
+        // 401 Unauthorized 에러 반환
+        // throw new UnauthenticatedException("권한이 없습니다.");
+
     }
 }

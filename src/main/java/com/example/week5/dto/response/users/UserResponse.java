@@ -15,16 +15,13 @@ public class UserResponse {
     private String profileImageUrl;
     private String role;
 
-    private String currentPassword;
-
     @Builder
-    public UserResponse(Long id, String email, String nickname, String profileImageUrl, String role, String currentPassword) {
+    public UserResponse(Long id, String email, String nickname, String profileImageUrl, String role) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.role = role;
-        this.currentPassword = currentPassword;
     }
 
     // Entity -> DTO 변환
@@ -37,5 +34,4 @@ public class UserResponse {
                 .role(users.getRole() != null ? users.getRole().name() : null) // 흠...
                 .build();
     }
-
 }

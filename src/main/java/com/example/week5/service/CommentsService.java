@@ -1,6 +1,7 @@
 package com.example.week5.service;
 
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
+import com.example.week5.common.exception.custom.UnauthenticatedException;
 import com.example.week5.dto.request.comments.CommentRequest;
 import com.example.week5.dto.response.comments.CommentResponse;
 import com.example.week5.dto.response.posts.PostListResponse;
@@ -61,10 +62,15 @@ public class CommentsService {
     }
 
     // 댓글 수정
-    public CommentResponse update(Long commentId, CommentRequest commentRequest) {
+    public CommentResponse update(Long commentId, CommentRequest commentRequest, Users user) {
         Comments comments = commentsRepository.findByIdWithUsers(commentId).orElseThrow(
-                () -> new ResourceNotFoundException("Comments")
+                () -> new ResourceNotFoundException("존재하지 않는 Comments")
         );
+
+        if (!comments.getUsers().getId().equals(user.getId())) {
+            throw new UnauthenticatedException("댓글 수정 권한이 없습니다.");
+        }
+
         comments.update(commentRequest.getContent());
         return CommentResponse.fromEntity(comments);
     }

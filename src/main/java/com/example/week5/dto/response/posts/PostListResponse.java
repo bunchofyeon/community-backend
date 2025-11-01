@@ -21,7 +21,6 @@ public class PostListResponse {
     private String nickname;
     private Long viewCount;
     private LocalDateTime createdAt;
-    // 1. 댓글 수는 redis 배우고 나서 다시...
     private LocalDateTime updatedAt;
 
     @Builder
