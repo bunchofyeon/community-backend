@@ -65,12 +65,13 @@ public class PostsService {
 
     // 게시글 상세 조회
     public PostDetailsResponse detail(Long postId) {
-        Posts findPost = postsRepository.findByIdWithUsers(postId).orElseThrow(
-                () -> new ResourceNotFoundException("Posts"));
 
         // 조회수 증가
-        // findBoard.upViewCount();
+        postsRepository.incrementViewCount(postId);
 
+        // 게시글 조회
+        Posts findPost = postsRepository.findByIdWithUsers(postId).orElseThrow(
+                () -> new ResourceNotFoundException("게시글을 찾을 수 없습니다."));
         return PostDetailsResponse.fromEntity(findPost);
     }
 
@@ -83,18 +84,6 @@ public class PostsService {
 
         return new PageImpl<>(list, pageable, findPost.getTotalElements());
     }
-
-    /*
-    * 1.
-    * orElseThrow(
-                () -> new ResourceNotFoundException("Posts"));
-    이거 왜 안해줌??
-    *
-    * 2.
-    * List<PostListResponse> list = findPost.getContent().stream()
-    * getContent()만 해도 됨?? 제목 본문 닉네임 다 가져와야하는데..
-    *
-    * */
 
     // 게시글 수정
     public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest) {

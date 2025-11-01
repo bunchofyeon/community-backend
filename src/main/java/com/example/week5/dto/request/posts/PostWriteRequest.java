@@ -1,6 +1,8 @@
 package com.example.week5.dto.request.posts;
 
 import com.example.week5.entity.Posts;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,9 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostWriteRequest {
 
-    // 글 올릴 때 어떤 정보를 받을건지...
-    // 파일은...??
+
+    @NotBlank(message = "제목을 입력해주세요.")
+    @Size(max=26, message = "제목은 최대 26자까지 가능합니다.")
     private String title;
+
+    @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
     @Builder

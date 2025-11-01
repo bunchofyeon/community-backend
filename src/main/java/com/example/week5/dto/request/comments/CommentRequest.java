@@ -1,6 +1,7 @@
 package com.example.week5.dto.request.comments;
 
 import com.example.week5.entity.Comments;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentRequest {
 
+    @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
     @Builder

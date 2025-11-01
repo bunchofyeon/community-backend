@@ -2,6 +2,9 @@ package com.example.week5.dto.request.auth;
 
 import com.example.week5.entity.Role;
 import com.example.week5.entity.Users;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +15,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterRequest {
 
+    @Email
+    @NotBlank(message = "이메일을 입력해주세요.")
     private String email;
+
+    @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
+
+    @NotBlank(message = "비밀번호가 일치하지 않습니다.")
     private String passwordCheck;
+
+    @NotBlank(message = "닉네임을 입력해주세요.")
+    @Size(max=10, message = "닉네임은 최대 10자까지 가능합니다.")
     private String nickname;
+
     private String profileImageUrl;
 
     @Builder
