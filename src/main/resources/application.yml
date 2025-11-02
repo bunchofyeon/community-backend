@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/jpa_practice?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
     username: root
-    password: 19980223
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -36,4 +36,14 @@ app:
 logging:
   level:
     org.hibernate.SQL: debug
+
+server:
+  servlet:
+    session:
+      timeout: 1h                 # 서버 쪽 세션 유효 시간
+      cookie:
+        name: SESSION_ID          # 쿠키 이름
+        http-only: true           # JS에서 접근 불가
+        secure: false             # HTTPS 연결에서만 쿠키를 전송하도록 (근데 지금은 로컬이라서...)
+        same-site: Lax            # 기본 설정 (지금은 내 사이트에서 내 API 요청에서는 전송, 외부 POST 요청은 차단)
 

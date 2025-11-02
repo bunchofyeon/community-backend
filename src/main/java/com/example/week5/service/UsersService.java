@@ -33,8 +33,6 @@ public class UsersService {
     private final PasswordEncoder encoder;
     private final UsersRepository usersRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
     // 1. 회원가입
     // 1-1. 이메일 중복 확인
     public HttpStatus checkEmailDuplicate(String email) {

@@ -55,10 +55,15 @@ public class UsersController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest loginRequest,
             HttpServletRequest request) {
+
+        // 기존 세션 무효화 후 새 세션 발급
+        HttpSession old = request.getSession(false);
+        if (old != null) old.invalidate();
+
         LoginResponse successBody = usersService.login(loginRequest);
         HttpSession session = request.getSession(true);// 서버가 세션ID 생성
-        session.setAttribute("sessionID", successBody); // 브라우저한테 세션ID 전달
-        return ResponseEntity.status(HttpStatus.CREATED)
+        session.setAttribute("LOGIN_USER", successBody); // 브라우저한테 세션ID 전달
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("로그인 성공", successBody));
     }
 

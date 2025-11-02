@@ -63,13 +63,13 @@ public class PostsController {
         HttpSession session = request.getSession(false);
 
         // 2) 세션이 로그인 상태인지 확인
-        if (session == null || session.getAttribute("sessionID") == null) {
+        if (session == null || session.getAttribute("LOGIN_USER") == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail("권힌이 없습니다"));
         }
 
         // 3) 사용자 정보를 가져오기
         // LoginResponse로 받는 방법밖에 없을까 ..?
-        LoginResponse user = (LoginResponse) session.getAttribute("sessionID");
+        LoginResponse user = (LoginResponse) session.getAttribute("LOGIN_USER");
         PostWriteResponse savePostDTO = postsService.write(postWriteRequest, user);
 
         URI location = URI.create("/posts/" + savePostDTO.getId());
@@ -87,10 +87,10 @@ public class PostsController {
         HttpSession session = request.getSession(false);
 
         //2) 세션이 로그인 상태인지 확인
-        if (session == null || session.getAttribute("sessionID") == null) {
+        if (session == null || session.getAttribute("LOGIN_USER") == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail("권힌이 없습니다"));
         }
-        LoginResponse user = (LoginResponse) session.getAttribute("sessionID");
+        LoginResponse user = (LoginResponse) session.getAttribute("LOGIN_USER");
         PostDetailsResponse updatePostDTO = postsService.update(postId, postUpdateRequest, user);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("게시글 수정", updatePostDTO));
