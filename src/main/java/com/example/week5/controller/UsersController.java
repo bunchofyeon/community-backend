@@ -3,26 +3,17 @@ package com.example.week5.controller;
 import com.example.week5.common.response.ApiResponse;
 import com.example.week5.dto.request.auth.LoginRequest;
 import com.example.week5.dto.request.auth.RegisterRequest;
-import com.example.week5.dto.request.users.UserUpdateRequest;
 import com.example.week5.dto.response.auth.LoginResponse;
 import com.example.week5.dto.response.auth.RegisterResponse;
-import com.example.week5.dto.response.comments.CommentResponse;
-import com.example.week5.dto.response.posts.PostListResponse;
-import com.example.week5.dto.response.users.UserResponse;
-import com.example.week5.entity.Users;
-import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.CommentsService;
 import com.example.week5.service.PostsService;
 import com.example.week5.service.UsersService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -59,30 +50,19 @@ public class UsersController {
                 .body(ApiResponse.success("회원가입 성공", successBody));
     }
 
-    // 로그인
+    // 로그인 - 세션
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(
-            @Valid @RequestBody LoginRequest loginRequest) {
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletRequest request) {
         LoginResponse successBody = usersService.login(loginRequest);
+        HttpSession session = request.getSession(true);// 서버가 세션ID 생성
+        session.setAttribute("sessionID", successBody); // 브라우저한테 세션ID 전달
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("로그인 성공", successBody));
     }
 
-    // 로그인 하고나서 비밀번호 일치확인
-    // 내가 이걸 왜 구현한거지?????.....
-    // @AuthenticationPrincipal CustomUserDetails customUserDetails로 변경
-    // -> Users users = customUserDetails.getUsers(); 추가해서 users 조회하도록
-    @PostMapping("/checkPwd")
-    public ResponseEntity<ApiResponse<UserResponse>> check(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @RequestBody Map<String, String> request) {
-        String password = request.get("password");
-        Users users = customUserDetails.getUsers();
-        UserResponse successBody = usersService.check(users, password);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("비밀번호 일치", successBody));
-    }
-
+    /*
     // 사용자 정보 수정
     @PatchMapping ("/update")
     public ResponseEntity<ApiResponse<UserResponse>> update(
@@ -140,5 +120,7 @@ public class UsersController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("회원 탈퇴", null));
     }
+
+     */
 
 }

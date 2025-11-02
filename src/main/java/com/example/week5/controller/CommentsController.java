@@ -4,7 +4,6 @@ import com.example.week5.common.response.ApiResponse;
 import com.example.week5.dto.request.comments.CommentRequest;
 import com.example.week5.dto.response.comments.CommentResponse;
 import com.example.week5.entity.Users;
-import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.CommentsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,7 +35,7 @@ public class CommentsController {
                 .body(ApiResponse.success("댓글 리스트", commentList));
     }
 
-    // 댓글 작성
+/*    // 댓글 작성
     @PostMapping("/write")
     public ResponseEntity<ApiResponse<CommentResponse>> write(
             @Valid @RequestBody CommentRequest commentRequest,
@@ -60,7 +58,7 @@ public class CommentsController {
         CommentResponse updateCommentDTO = commentsService.update(commentId, commentRequest, user);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("댓글 수정", updateCommentDTO));
-    }
+    }*/
 
     // 댓글 삭제
     @DeleteMapping("/{commentId}")

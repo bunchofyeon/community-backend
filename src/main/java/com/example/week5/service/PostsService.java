@@ -2,8 +2,10 @@ package com.example.week5.service;
 
 import com.example.week5.common.exception.custom.ResourceNotFoundException;
 import com.example.week5.common.exception.custom.UnauthenticatedException;
+import com.example.week5.common.exception.custom.UnauthorizedException;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
+import com.example.week5.dto.response.auth.LoginResponse;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
 import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
@@ -46,11 +48,11 @@ public class PostsService {
 
 
     // 게시글 등록
-    public PostWriteResponse write(PostWriteRequest postWriteRequest, Users users) {
+    public PostWriteResponse write(PostWriteRequest postWriteRequest, LoginResponse users) {
 
         // 1) 작성자 조회
         Users writer = usersRepository.findByEmail(users.getEmail()).orElseThrow(
-                () -> new ResourceNotFoundException("Users"));
+                () -> new UnauthorizedException("권한이 없습니다"));
 
         // 2) DTO -> Entity
         Posts posts = PostWriteRequest.ofEntity(postWriteRequest);
@@ -87,16 +89,20 @@ public class PostsService {
     }
 
     // 게시글 수정
-    public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest, Users users) {
-        Posts updatePost = postsRepository.findByIdWithUsers(postId).orElseThrow( // 일단... (게시글 + 작성자)만 조회
+    public PostDetailsResponse update(Long postId, PostUpdateRequest postUpdateRequest, LoginResponse users) {
+        Users user = usersRepository.findByEmail(users.getEmail()).orElseThrow(
+                () -> new UnauthorizedException("권한이 없습니다")
+        );
+
+        Posts updatePost = postsRepository.findByIdWithUsers(postId).orElseThrow(
                 () -> new ResourceNotFoundException("존재하지 않는 Posts"));
 
-        if (!updatePost.getUsers().getId().equals(users.getId())) {
+        if (!updatePost.getUsers().getId().equals(user.getId())) {
             throw new UnauthenticatedException("게시글 수정 권한이 없습니다.");
         }
 
         updatePost.update(postUpdateRequest.getTitle(), postUpdateRequest.getContent());
-        postsRepository.saveAndFlush(updatePost ); // updated_at 채워지게
+//        postsRepository.saveAndFlush(updatePost); // updated_at 채워지게
         return PostDetailsResponse.fromEntity(updatePost);
     }
 

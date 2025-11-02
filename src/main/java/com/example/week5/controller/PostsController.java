@@ -4,13 +4,15 @@ import com.example.week5.common.response.ApiResponse;
 import com.example.week5.common.response.ResponseFactory;
 import com.example.week5.dto.request.posts.PostUpdateRequest;
 import com.example.week5.dto.request.posts.PostWriteRequest;
+import com.example.week5.dto.response.auth.LoginResponse;
 import com.example.week5.dto.response.posts.PostDetailsResponse;
 import com.example.week5.dto.response.posts.PostListResponse;
 import com.example.week5.dto.response.posts.PostWriteResponse;
 import com.example.week5.entity.Posts;
 import com.example.week5.entity.Users;
-import com.example.week5.security.jwt.CustomUserDetails;
 import com.example.week5.service.PostsService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -57,9 +58,19 @@ public class PostsController {
     @PostMapping("/write")
     public ResponseEntity<ApiResponse<PostWriteResponse>> write(
             @Valid @RequestBody PostWriteRequest postWriteRequest,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Users users = customUserDetails.getUsers();
-        PostWriteResponse savePostDTO = postsService.write(postWriteRequest, users);
+            HttpServletRequest request) {
+        // 1) 로그인 검증 - 세션 있냐 없냐
+        HttpSession session = request.getSession(false);
+
+        // 2) 세션이 로그인 상태인지 확인
+        if (session == null || session.getAttribute("sessionID") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail("권힌이 없습니다"));
+        }
+
+        // 3) 사용자 정보를 가져오기
+        // LoginResponse로 받는 방법밖에 없을까 ..?
+        LoginResponse user = (LoginResponse) session.getAttribute("sessionID");
+        PostWriteResponse savePostDTO = postsService.write(postWriteRequest, user);
 
         URI location = URI.create("/posts/" + savePostDTO.getId());
         return ResponseFactory.created(location, savePostDTO);
@@ -71,9 +82,16 @@ public class PostsController {
     public ResponseEntity<ApiResponse<PostDetailsResponse>> update(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequest postUpdateRequest,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        Users users = customUserDetails.getUsers();
-        PostDetailsResponse updatePostDTO = postsService.update(postId, postUpdateRequest, users);
+            HttpServletRequest request) {
+        // 1) 로그인 검증 - 세션 있냐 없냐
+        HttpSession session = request.getSession(false);
+
+        //2) 세션이 로그인 상태인지 확인
+        if (session == null || session.getAttribute("sessionID") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.fail("권힌이 없습니다"));
+        }
+        LoginResponse user = (LoginResponse) session.getAttribute("sessionID");
+        PostDetailsResponse updatePostDTO = postsService.update(postId, postUpdateRequest, user);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("게시글 수정", updatePostDTO));
     }

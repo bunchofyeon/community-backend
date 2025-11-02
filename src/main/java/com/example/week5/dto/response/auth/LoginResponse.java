@@ -10,19 +10,16 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
 
     private String email;
-    private String token;
 
     @Builder
-    public LoginResponse(String email, String token) {
+    public LoginResponse(String email) {
         this.email = email;
-        this.token = token;
     }
 
     // Entity -> DTO
-    public static LoginResponse fromEntity(Users users, String token) {
+    public static LoginResponse fromEntity(Users users) {
         return LoginResponse.builder()
                 .email(users.getEmail())
-                .token(token)
                 .build();
     }
 

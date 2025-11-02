@@ -42,6 +42,8 @@ public class CommentsService {
     // 댓글 등록
     public CommentResponse write(Long postId, Users users, CommentRequest commentRequest) {
 
+
+
         // 1) 게시글 정보 조회
         Posts posts = postsRepository.findById(postId).orElseThrow(
                 () -> new ResourceNotFoundException("Posts")
